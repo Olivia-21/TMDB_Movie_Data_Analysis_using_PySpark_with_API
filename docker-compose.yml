@@ -1,0 +1,10 @@
+version: '3.8'
+services:
+  tmdb-pipeline:
+    build: .
+    container_name: tmdb_movie_pipeline
+    volumes:
+      - .:/app
+    environment:
+      - PYTHONUNBUFFERED=1
+    command: ["python", "orchestrator/run_pipeline.py"]
