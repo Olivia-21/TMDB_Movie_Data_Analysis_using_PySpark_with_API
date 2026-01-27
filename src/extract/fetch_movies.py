@@ -15,7 +15,10 @@ from orchestrator.logger import get_step_logger
 
 
 def get_movie_schema():
-    """Define the schema for raw movie data."""
+    """Define the schema for raw movie data.
+    True: The field can be null
+    False: The field cannot be null
+    """
     return StructType([
         StructField("id", IntegerType(), True),
         StructField("title", StringType(), True),
@@ -175,7 +178,7 @@ def fetch_movies(spark, movie_ids=None, config_path='config/settings.yaml'):
             failed_ids.append(movie_id)
     
     if failed_ids:
-        logger.warning(f"Failed to fetch {len(failed_ids)} movies: {failed_ids}")
+        logger.warning(f"Failed to fetch {len(failed_ids)} movie(s): {failed_ids}")
     
     logger.info(f"Successfully fetched {len(movies_data)} movies")
     

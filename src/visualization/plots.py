@@ -269,7 +269,7 @@ def create_all_visualizations(df, output_dir, comparison_df=None):
     Create all visualizations and save to output directory.
     
     Args:
-        df: PySpark DataFrame with enriched movie data.
+        df: PySpark DataFrame with derived metrice movie data.
         output_dir: Directory to save plot images.
         comparison_df: Optional PySpark DataFrame with franchise comparison data.
     

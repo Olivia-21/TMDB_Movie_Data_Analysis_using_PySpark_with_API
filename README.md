@@ -20,9 +20,10 @@ This pipeline fetches movie data from the TMDB API, cleans and transforms it, co
 ```
 tmdb_movie_pipeline/
 |-- orchestrator/
-|   |-- run_pipeline.py    # Main entry point
-|   |-- logger.py          # Logging configuration
-|   |-- retry.py           # Retry logic with backoff
+|   |-- tmdb_pipeline.py       # Main entry point (CLI)
+|   |-- pipeline_notebook.ipynb # Interactive notebook version
+|   |-- logger.py              # Logging configuration
+|   |-- retry.py               # Retry logic with backoff
 |
 |-- src/
 |   |-- extract/
@@ -38,9 +39,7 @@ tmdb_movie_pipeline/
 |   |-- visualization/
 |   |   |-- plots.py
 |   |-- utils/
-|       |-- api_client.py
-|       |-- constants.py
-|       |-- validators.py
+|       |-- api_client.py      # TMDB API client with rate limiting
 |
 |-- data/
 |   |-- raw/               # Raw extracted data
@@ -60,11 +59,11 @@ tmdb_movie_pipeline/
 
 - Python 3.9+
 - Java 8/11/17 (for PySpark)
-- Docker (optional, for containerized execution)
+- Docker (for containerized execution)
 
 ## Quick Start
 
-### Using Docker (Recommended)
+### Using Docker 
 
 1. Build the Docker image:
    ```bash
@@ -92,7 +91,7 @@ tmdb_movie_pipeline/
 
 3. Run the pipeline:
    ```bash
-   python orchestrator/run_pipeline.py
+   python orchestrator/tmdb_pipeline.py
    ```
 
 ## Configuration
@@ -132,6 +131,5 @@ Logs are written to:
 
 The pipeline includes:
 - Retry logic with exponential backoff for API calls
-- Rate limiting to respect TMDB API limits
 - Graceful handling of missing or invalid data
 - Comprehensive error logging
