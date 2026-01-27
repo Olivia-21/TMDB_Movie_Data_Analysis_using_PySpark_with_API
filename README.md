@@ -29,7 +29,7 @@ tmdb_movie_pipeline/
 |   |   |-- fetch_movies.py
 |   |-- transform/
 |   |   |-- clean_movies.py
-|   |   |-- enrich_movies.py
+|   |   |-- derived_metrics.py
 |   |-- analysis/
 |   |   |-- kpi_rankings.py
 |   |   |-- advanced_filters.py

@@ -11,17 +11,21 @@ from orchestrator.logger import get_step_logger
 MIN_BUDGET_FOR_ROI = 10.0
 
 
-def enrich_movies(df):
+def add_derived_metrics(df):
     """
-    Add derived metrics to the cleaned movie data.
+    Add derived metrics and calculated columns to the cleaned movie data.
     
-    Adds: profit_musd, roi, release_year, release_month
+    Derived columns added:
+        - profit_musd: Revenue minus budget in millions USD
+        - roi: Return on Investment (only for movies with budget >= 10M)
+        - release_year: Year extracted from release_date
+        - release_month: Month extracted from release_date
     
     Args:
-        df: Cleaned PySpark DataFrame.
+        df: Cleaned PySpark DataFrame with revenue_musd, budget_musd, release_date columns.
     
     Returns:
-        Enriched PySpark DataFrame with derived columns.
+        PySpark DataFrame with additional derived metric columns.
     """
     logger = get_step_logger('transform')
     logger.info("Starting data enrichment")

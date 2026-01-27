@@ -18,7 +18,7 @@ from orchestrator.retry import run_with_retry
 
 from src.extract.fetch_movies import fetch_movies
 from src.transform.clean_movies import clean_movies
-from src.transform.enrich_movies import enrich_movies
+from src.transform.derived_metrics import add_derived_metrics
 from src.analysis.kpi_rankings import get_best_worst_performers
 from src.analysis.advanced_filters import (
     search_scifi_action_bruce_willis,
@@ -173,7 +173,7 @@ def main():
         logger.info("-" * 40)
         
         enriched_df = run_with_retry(
-            lambda: enrich_movies(cleaned_df),
+            lambda: add_derived_metrics(cleaned_df),
             retries=2,
             delay=1,
             logger=logger,
