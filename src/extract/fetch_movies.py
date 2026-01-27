@@ -4,23 +4,18 @@ Handles extraction of movie data from the TMDB API.
 """
 
 import json
-from pyspark.sql import SparkSession
+import time
+import yaml
 from pyspark.sql.types import (
     StructType, StructField, StringType, IntegerType, DoubleType
 )
 
 from src.utils.api_client import TMDBClient
-from src.utils.constants import MOVIE_IDS
 from orchestrator.logger import get_step_logger
 
 
 def get_movie_schema():
-    """
-    Define the schema for raw movie data.
-    
-    Returns:
-        PySpark StructType for movie data.
-    """
+    """Define the schema for raw movie data."""
     return StructType([
         StructField("id", IntegerType(), True),
         StructField("title", StringType(), True),
@@ -54,65 +49,31 @@ def get_movie_schema():
 
 
 def extract_cast_info(cast_list, limit=5):
-    """
-    Extract top cast member names from cast list.
-    
-    Args:
-        cast_list: List of cast dictionaries from API.
-        limit: Maximum number of cast members to include.
-    
-    Returns:
-        Pipe-separated string of actor names.
-    """
+    """Extract top cast member names from cast list."""
     if not cast_list:
         return None
-    
-    # Sort by order (most prominent first) and take top N
     sorted_cast = sorted(cast_list, key=lambda x: x.get('order', 999))[:limit]
     names = [actor.get('name', '') for actor in sorted_cast if actor.get('name')]
-    
     return '|'.join(names) if names else None
 
 
 def extract_director(crew_list):
-    """
-    Extract director name from crew list.
-    
-    Args:
-        crew_list: List of crew dictionaries from API.
-    
-    Returns:
-        Director name or None if not found.
-    """
+    """Extract director name from crew list."""
     if not crew_list:
         return None
-    
     for crew_member in crew_list:
         if crew_member.get('job') == 'Director':
             return crew_member.get('name')
-    
     return None
 
 
 def process_movie_data(movie_data):
-    """
-    Process raw API response into a flat dictionary for DataFrame.
-    
-    Args:
-        movie_data: Dictionary containing movie data from API.
-    
-    Returns:
-        Flat dictionary ready for DataFrame row.
-    """
-    # Extract cast and crew info
+    """Process raw API response into a flat dictionary for DataFrame."""
     cast_list = movie_data.get('cast', [])
     crew_list = movie_data.get('crew', [])
     
-    # Convert JSON fields to strings for storage
     def json_to_str(obj):
-        if obj is None:
-            return None
-        return json.dumps(obj)
+        return json.dumps(obj) if obj is not None else None
     
     return {
         'id': movie_data.get('id'),
@@ -146,13 +107,43 @@ def process_movie_data(movie_data):
     }
 
 
+def fetch_single_movie(client, movie_id, logger, max_retries=3):
+    """
+    Fetch a single movie with retry logic.
+    
+    Args:
+        client: TMDBClient instance.
+        movie_id: Movie ID to fetch.
+        logger: Logger instance.
+        max_retries: Maximum number of retry attempts.
+    
+    Returns:
+        Movie data dictionary or None if all retries failed.
+    """
+    delay = 1
+    
+    for attempt in range(1, max_retries + 1):
+        try:
+            logger.info(f"Attempt {attempt} of {max_retries} for movie ID {movie_id}")
+            raw_data = client.get_movie_with_credits(movie_id)
+            return raw_data
+        except Exception as e:
+            logger.warning(f"Attempt {attempt} failed for movie ID {movie_id}: {str(e)}")
+            if attempt < max_retries:
+                logger.info(f"Retrying in {delay} seconds...")
+                time.sleep(delay)
+                delay *= 2  # Exponential backoff
+    
+    return None
+
+
 def fetch_movies(spark, movie_ids=None, config_path='config/settings.yaml'):
     """
     Fetch movie data from TMDB API and return as PySpark DataFrame.
     
     Args:
         spark: SparkSession instance.
-        movie_ids: List of movie IDs to fetch. If None, uses default list.
+        movie_ids: List of movie IDs to fetch. If None, uses config file.
         config_path: Path to configuration file.
     
     Returns:
@@ -161,55 +152,26 @@ def fetch_movies(spark, movie_ids=None, config_path='config/settings.yaml'):
     logger = get_step_logger('extract')
     
     if movie_ids is None:
-        movie_ids = MOVIE_IDS
+        with open(config_path, 'r') as f:
+            config = yaml.safe_load(f)
+        movie_ids = config.get('movie_ids', [])
     
     logger.info(f"Starting extraction for {len(movie_ids)} movies")
     
-    # Initialize API client
     client = TMDBClient(config_path)
-    
-    # Fetch data for each movie
     movies_data = []
     failed_ids = []
     
     for movie_id in movie_ids:
-        try:
-            logger.info(f"Fetching movie ID: {movie_id}")
-            
-            # Use retry logic for individual movie fetches
-            def fetch_single_movie():
-                return client.get_movie_with_credits(movie_id)
-            
-            # Retry with exponential backoff (1s, 2s, 4s delays)
-            raw_data = None
-            max_retries = 3
-            delay = 1
-            backoff = 2
-            last_error = None
-            
-            for attempt in range(1, max_retries + 1):
-                try:
-                    logger.info(f"  Attempt {attempt} of {max_retries} for movie ID {movie_id}")
-                    raw_data = client.get_movie_with_credits(movie_id)
-                    break
-                except Exception as e:
-                    last_error = e
-                    logger.warning(f"  Attempt {attempt} failed for movie ID {movie_id}: {str(e)}")
-                    if attempt < max_retries:
-                        import time
-                        logger.info(f"  Retrying in {delay} seconds...")
-                        time.sleep(delay)
-                        delay *= backoff
-            
-            if raw_data is None:
-                raise last_error
-            
+        logger.info(f"Fetching movie ID: {movie_id}")
+        raw_data = fetch_single_movie(client, movie_id, logger)
+        
+        if raw_data:
             processed_data = process_movie_data(raw_data)
             movies_data.append(processed_data)
             logger.info(f"Successfully fetched: {processed_data.get('title', 'Unknown')}")
-        
-        except Exception as e:
-            logger.warning(f"Failed to fetch movie ID {movie_id} after all retries: {str(e)}")
+        else:
+            logger.warning(f"Failed to fetch movie ID {movie_id} after all retries")
             failed_ids.append(movie_id)
     
     if failed_ids:
@@ -217,14 +179,10 @@ def fetch_movies(spark, movie_ids=None, config_path='config/settings.yaml'):
     
     logger.info(f"Successfully fetched {len(movies_data)} movies")
     
-    # Create DataFrame from collected data
     if not movies_data:
-        logger.error("No movies were fetched successfully")
         raise ValueError("No movies were fetched from the API")
     
-    # Create DataFrame with schema
     df = spark.createDataFrame(movies_data, schema=get_movie_schema())
-    
     logger.info(f"Created DataFrame with {df.count()} rows")
     
     return df

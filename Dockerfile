@@ -15,7 +15,7 @@ ENV PATH="$JAVA_HOME/bin:$PATH"
 
 # Install Python dependencies
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt jupyterlab
 
 # Copy project files
 COPY . .

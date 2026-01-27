@@ -3,7 +3,6 @@ Director Analysis module for TMDB Movie Pipeline.
 Analyzes director performance based on their filmography.
 """
 
-from pyspark.sql import DataFrame
 from pyspark.sql.functions import col, count, sum as spark_sum, avg, desc
 
 from orchestrator.logger import get_step_logger

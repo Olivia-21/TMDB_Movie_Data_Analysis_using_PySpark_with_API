@@ -1,10 +1,23 @@
 version: '3.8'
 services:
-  tmdb-pipeline:
+  # Run the full pipeline
+  pipeline:
     build: .
-    container_name: tmdb_movie_pipeline
+    container_name: tmdb_pipeline
     volumes:
       - .:/app
     environment:
       - PYTHONUNBUFFERED=1
-    command: ["python", "orchestrator/run_pipeline.py"]
+    command: ["python", "orchestrator/tmdb_pipeline.py"]
+
+  # Run Jupyter notebook for presentation
+  jupyter:
+    build: .
+    container_name: tmdb_jupyter
+    volumes:
+      - .:/app
+    ports:
+      - "8888:8888"
+    environment:
+      - PYTHONUNBUFFERED=1
+    command: ["jupyter", "lab", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--allow-root", "--NotebookApp.token=''"]

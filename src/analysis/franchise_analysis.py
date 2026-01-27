@@ -3,7 +3,6 @@ Franchise Analysis module for TMDB Movie Pipeline.
 Analyzes performance differences between franchise and standalone movies.
 """
 
-from pyspark.sql import DataFrame
 from pyspark.sql.functions import (
     col, when, lit, count, sum as spark_sum, avg, 
     percentile_approx, desc

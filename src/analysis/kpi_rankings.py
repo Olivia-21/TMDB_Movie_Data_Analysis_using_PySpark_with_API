@@ -3,11 +3,15 @@ KPI Rankings module for TMDB Movie Pipeline.
 Provides functions for ranking movies based on various performance metrics.
 """
 
-from pyspark.sql import DataFrame
 from pyspark.sql.functions import col, desc, asc
 
-from src.utils.constants import MIN_BUDGET_FOR_ROI, MIN_VOTES_FOR_RATING
 from orchestrator.logger import get_step_logger
+
+# Minimum budget in millions for ROI calculations
+MIN_BUDGET_FOR_ROI = 10.0
+
+# Minimum votes required for rating-based rankings
+MIN_VOTES_FOR_RATING = 10
 
 
 def get_top_movies_by(df, column, n=10, ascending=False, filter_condition=None):

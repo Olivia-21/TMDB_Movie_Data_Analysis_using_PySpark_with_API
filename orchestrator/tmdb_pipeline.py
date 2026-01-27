@@ -30,7 +30,15 @@ from src.analysis.franchise_analysis import (
 )
 from src.analysis.director_analysis import get_top_directors
 from src.visualization.plots import create_all_visualizations
-from src.utils.validators import validate_dataframe_not_empty
+
+
+def validate_dataframe_not_empty(df, step_name, logger):
+    """Validate that a DataFrame is not empty."""
+    count = df.count()
+    if count == 0:
+        raise ValueError(f"{step_name}: DataFrame is empty")
+    logger.info(f"{step_name}: DataFrame has {count} rows")
+    return True
 
 
 def load_config(config_path='config/settings.yaml'):

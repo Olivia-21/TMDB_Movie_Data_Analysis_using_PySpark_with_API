@@ -3,7 +3,6 @@ Advanced Filters module for TMDB Movie Pipeline.
 Provides specialized search queries for finding specific movies.
 """
 
-from pyspark.sql import DataFrame
 from pyspark.sql.functions import col, lower, desc, asc
 
 from orchestrator.logger import get_step_logger
