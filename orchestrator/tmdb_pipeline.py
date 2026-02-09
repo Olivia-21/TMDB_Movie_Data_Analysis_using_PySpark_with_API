@@ -7,6 +7,8 @@ import os
 import sys
 import time
 import yaml
+import glob
+import shutil
 
 # Add project root to path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -33,11 +35,11 @@ from src.visualization.plots import create_all_visualizations
 
 
 def validate_dataframe_not_empty(df, step_name, logger):
-    """Validate that a DataFrame is not empty."""
-    count = df.count()
-    if count == 0:
+    """Validate that a DataFrame is not empty.
+    """
+    if df.isEmpty():
         raise ValueError(f"{step_name}: DataFrame is empty")
-    logger.info(f"{step_name}: DataFrame has {count} rows")
+    logger.info(f"{step_name}: DataFrame validation passed (not empty)")
     return True
 
 
@@ -95,12 +97,10 @@ def save_dataframe(df, path, logger):
     df.coalesce(1).write.mode('overwrite').option('header', 'true').csv(path + '_temp')
     
     # Rename the part file to the target name
-    import glob
     temp_dir = path + '_temp'
     part_file = glob.glob(os.path.join(temp_dir, 'part-*.csv'))[0]
     
     # Move and rename
-    import shutil
     shutil.move(part_file, path)
     shutil.rmtree(temp_dir)
     

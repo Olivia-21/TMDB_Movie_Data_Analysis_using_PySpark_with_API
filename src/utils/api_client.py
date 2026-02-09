@@ -30,8 +30,6 @@ class TMDBClient:
         """
         Fetch movie details along with credits in a single API call.
         
-        Uses TMDB's append_to_response feature for efficiency.
-        
         Args:
             movie_id: TMDB movie ID.
         
