@@ -5,7 +5,7 @@ Analyzes director performance based on their filmography.
 
 from pyspark.sql.functions import col, count, sum as spark_sum, avg, desc
 
-from orchestrator.logger import get_step_logger
+from config.logger.logger import get_step_logger
 
 
 def get_top_directors(df, n=10):

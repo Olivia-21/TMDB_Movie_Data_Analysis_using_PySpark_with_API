@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use('Agg')  # Non-interactive backend for Docker
 
-from orchestrator.logger import get_step_logger
+from config.logger.logger import get_step_logger
 
 
 def setup_plot_style():

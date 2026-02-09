@@ -11,7 +11,7 @@ from pyspark.sql.types import (
 )
 
 from src.utils.api_client import TMDBClient
-from orchestrator.logger import get_step_logger
+from config.logger.logger import get_step_logger
 
 
 def get_movie_schema():

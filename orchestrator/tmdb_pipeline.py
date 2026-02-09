@@ -13,8 +13,8 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from pyspark.sql import SparkSession
 
-from orchestrator.logger import get_pipeline_logger
-from orchestrator.retry import run_with_retry
+from config.logger.logger import get_pipeline_logger
+from config.retries.retry import run_with_retry
 
 from src.extract.fetch_movies import fetch_movies
 from src.transform.clean_movies import clean_movies

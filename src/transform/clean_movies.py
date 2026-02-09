@@ -7,7 +7,7 @@ import json
 from pyspark.sql.functions import col, when, lit, udf, trim, to_date
 from pyspark.sql.types import StringType
 
-from orchestrator.logger import get_step_logger
+from config.logger.logger import get_step_logger
 
 # Columns to drop during data cleaning
 DROP_COLUMNS = ['adult', 'imdb_id', 'original_title', 'video', 'homepage']

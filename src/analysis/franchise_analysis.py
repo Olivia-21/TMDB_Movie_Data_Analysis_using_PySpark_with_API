@@ -8,7 +8,7 @@ from pyspark.sql.functions import (
     percentile_approx, desc
 )
 
-from orchestrator.logger import get_step_logger
+from config.logger.logger import get_step_logger
 
 
 def compare_franchise_vs_standalone(df):

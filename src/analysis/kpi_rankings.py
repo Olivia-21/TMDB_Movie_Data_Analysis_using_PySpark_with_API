@@ -5,7 +5,7 @@ Provides functions for ranking movies based on various performance metrics.
 
 from pyspark.sql.functions import col, desc, asc
 
-from orchestrator.logger import get_step_logger
+from config.logger.logger import get_step_logger
 
 # Minimum budget in millions for ROI calculations
 MIN_BUDGET_FOR_ROI = 10.0

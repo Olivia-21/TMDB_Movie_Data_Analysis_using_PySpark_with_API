@@ -5,7 +5,7 @@ Provides specialized search queries for finding specific movies.
 
 from pyspark.sql.functions import col, lower, desc, asc
 
-from orchestrator.logger import get_step_logger
+from config.logger.logger import get_step_logger
 
 
 def search_by_genre_and_actor(df, genres, actor_name, sort_by='vote_average', ascending=False):

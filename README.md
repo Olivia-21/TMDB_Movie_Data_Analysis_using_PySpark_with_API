@@ -20,39 +20,55 @@ This pipeline fetches movie data from the TMDB API, cleans and transforms it, co
 ```
 tmdb_movie_pipeline/
 |-- orchestrator/
-|   |-- tmdb_pipeline.py       # Main entry point (CLI)
+|   |-- tmdb_pipeline.py        # Main entry point (CLI)
 |   |-- pipeline_notebook.ipynb # Interactive notebook version
-|   |-- logger.py              # Logging configuration
-|   |-- retry.py               # Retry logic with backoff
 |
 |-- src/
 |   |-- extract/
-|   |   |-- fetch_movies.py
+|   |   |-- fetch_movies.py     # API extraction from TMDB
 |   |-- transform/
-|   |   |-- clean_movies.py
-|   |   |-- derived_metrics.py
+|   |   |-- clean_movies.py     # Data cleaning and preprocessing
+|   |   |-- derived_metrics.py  # Derived metrics (ROI, profit, etc.)
 |   |-- analysis/
-|   |   |-- kpi_rankings.py
-|   |   |-- advanced_filters.py
+|   |   |-- kpi_rankings.py     # Best/worst movie rankings
+|   |   |-- advanced_filters.py # Complex search queries
 |   |   |-- franchise_analysis.py
 |   |   |-- director_analysis.py
 |   |-- visualization/
-|   |   |-- plots.py
+|   |   |-- plots.py            # Matplotlib visualizations
 |   |-- utils/
-|       |-- api_client.py      # TMDB API client with rate limiting
+|       |-- api_client.py       # TMDB API client with rate limiting
+|
+|-- config/
+|   |-- __init__.py             # Package marker
+|   |-- settings.yaml           # Configuration file (API keys, paths)
+|   |-- logger/
+|   |   |-- __init__.py         # Package marker
+|   |   |-- logger.py           # Logging configuration
+|   |-- retries/
+|       |-- __init__.py         # Package marker
+|       |-- retry.py            # Retry logic with backoff
 |
 |-- data/
-|   |-- raw/               # Raw extracted data
-|   |-- processed/         # Cleaned data
-|   |-- analytics/         # Final enriched data and plots
+|   |-- raw/                    # Raw extracted data
+|   |   |-- movies_raw.csv
+|   |-- processed/              # Cleaned data
+|   |   |-- movies_cleaned.csv
+|   |-- analytics/              # Final enriched data and plots
+|       |-- movies_final.csv
+|       |-- plots/              # Generated visualizations
 |
-|-- logs/                  # Pipeline execution logs
-|-- config/
-|   |-- settings.yaml      # Configuration file
+|-- logs/                       # Pipeline execution logs
+|   |-- pipeline.log            # Main orchestration logs
+|   |-- extract.log             # Extraction step logs
+|   |-- transform.log           # Transformation logs
+|   |-- analysis.log            # Analysis step logs
+|   |-- visualization.log       # Visualization logs
 |
 |-- Dockerfile
 |-- docker-compose.yml
 |-- requirements.txt
+|-- README.md
 ```
 
 ## Requirements
